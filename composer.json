@@ -1,0 +1,21 @@
+{
+    "name": "iqleads/stanley",
+    "authors": [
+        {
+            "name": "Stanley Man",
+            "email": "stanley.man@iq-leads.com"
+        }
+    ],
+    "require": {
+        "filp/whoops": "^2.1",
+        "vlucas/phpdotenv": "2.4.0",
+        "illuminate/database": "@dev",
+        "altorouter/altorouter": "1.1.0",
+        "respect/validation": "^1.1",
+        "twig/twig": "~1.0",
+        "duncan3dc/blade": "2.2.*"
+    },
+    "autoload":{
+      "psr-4": {"Cursus\\": "src/"}
+    }
+}
