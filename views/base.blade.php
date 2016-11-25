@@ -37,7 +37,9 @@
       </div>
       </div>
       <div class="col-md-6"></div>
-      <div class="col-md-3">Map</div>
+      <div class="col-md-3">
+        <img src="/assets/map-small.png" class="pull-right">
+      </div>
     </div>
 
   <script
