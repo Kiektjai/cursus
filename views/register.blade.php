@@ -13,6 +13,7 @@
   <div class="col-md-8">
 
     <form id="registerform" name="registerform" class="form-horizontal" action="/register" method="post" novalidate>
+      <input type="hidden" name="_token" value="{!! htmlspecialchars($signer->getSignature()) !!}">
       <h3>Register</h3>
 
       <hr>

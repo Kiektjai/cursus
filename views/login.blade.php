@@ -10,20 +10,20 @@ Login
 
   </div>
   <div class="col-md-8">
-
-    <form class="form-horizontal">
-      <h3>Log in</h3>
-      <hr>
+    <h3>Log in</h3>
+    <hr>
+    <form name="loginform" id="loginform" action="/login" method="post" class="form-horizontal">
+      <input type="hidden" name="_token" value="{!! htmlspecialchars($signer->getSignature()) !!}">
       <div class="form-group">
-        <label for="inputEmail3" class="col-sm-2 control-label">Email</label>
+        <label for="email" class="col-sm-2 control-label">Email</label>
         <div class="col-sm-10">
-          <input type="email" class="form-control" id="inputEmail3" placeholder="Email">
+          <input type="email" class="form-control email required" id="email" name="email" placeholder="Email">
         </div>
       </div>
       <div class="form-group">
-        <label for="inputPassword3" class="col-sm-2 control-label">Password</label>
+        <label for="password" class="col-sm-2 control-label">Password</label>
         <div class="col-sm-10">
-          <input type="password" class="form-control" id="inputPassword3" placeholder="Password">
+          <input type="password" class="form-control required" name="password" id="password" placeholder="Password">
         </div>
       </div>
       <div class="form-group">
@@ -47,4 +47,12 @@ Login
 
   </div>
 </div>
+@stop
+
+@section('bottomjs')
+<script>
+$(document).ready(function(){
+  $("#loginform").validate();
+});
+</script>
 @stop

@@ -31,6 +31,14 @@ class Validator{
               $errors[] = "Value does not match verification value!";
             }
             break;
+          case 'unique':
+            $model = "Cursus\\models\\".$exploded[1];
+            $table = new $model;
+            $results = $table::where($name, '=' ,$_REQUEST[$name])->get();
+            foreach($results as $item){
+              $errors[] = $_REQUEST[$name]." already exists in the system!";
+            }
+            break;
           default:
             $errors[] = "No value found.";
         }

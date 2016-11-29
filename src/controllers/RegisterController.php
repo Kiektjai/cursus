@@ -1,23 +1,33 @@
 <?php
-namespace Cursus\Controllers;
+namespace Cursus\controllers;
 
-use Cursus\Models\User;
+use Cursus\models\User;
 use Cursus\Validation\Validator;
 use duncan3dc\Laravel\BladeInstance;
+use Cursus\email\SendEmail;
+use Cursus\models\UserPending;
 
 class RegisterController extends BaseController{
 
   public function getShowRegisterPage(){
-    //echo $this->twig->render('register.html');
-    echo $this->blade->render("register");
+    echo $this->blade->render("register", [
+      'signer' => $this->signer,
+    ]);
   }
 
   public function postShowRegisterPage(){
 
+    $errors = [];
+
+    if (!$this->signer->validateSignature($_POST['_token'])) {
+        header('HTTP/1.0 400 Bad Request');
+        exit;
+    }
+
     $validation_data = [
       "first_name" => "min:3",
       "last_name" => "min:3",
-      "email" => "email|equalTo:verify_email",
+      "email" => "email|equalTo:verify_email|unique:User",
       "verify_email" => "email",
       "password" => "min:3|equalTo:verify_password",
       "verify_password" => "min:3",
@@ -34,7 +44,9 @@ class RegisterController extends BaseController{
     if(sizeof($errors) > 0){
       $_SESSION['msg'] = $errors;
       //echo $this->twig->render('register.html', ['errors' => $errors]);
-      echo $this->blade->render('register');
+      echo $this->blade->render('register', [
+        'signer' => $this->signer,
+      ]);
       unset($_SESSION['msg']);
       exit();
     }
@@ -46,11 +58,48 @@ class RegisterController extends BaseController{
     $user->email = $_REQUEST['email'];
     $user->password = password_hash($_REQUEST['password'], PASSWORD_DEFAULT);
     $user->save();
+
+    $token = md5(uniqid(rand(), true)).md5(uniqid(rand(), true));
+    $user_pending = new UserPending;
+    $user_pending->token = $token;
+    $user_pending->user_id = $user->id;
+    $user_pending->save();
+
+    $message = $this->blade->render('emails.welcome-email',
+      ['token' => $token]
+    );
+
+    SendEmail::sendEmail($user->email, "Welcome to Cursus", $message);
+
+    header("Location: /success");
+    exit();
   }
 
-  public function getShowLoginPage(){
-    //echo $this->twig->render('login.html');
-    echo $this->blade->render("login");
+  public function getVerifyAccount(){
+    $user_id = 0;
+    $token = $_GET['token'];
+
+    // look up the token
+    $user_pending = UserPending::where('token', '=', $token)->get();
+
+    foreach($user_pending as $item){
+      $user_id = $item->user_id;
+    }
+
+    if($user_id > 0){
+      // make the user account active
+      $user = User::find($user_id);
+      $user->active = 1;
+      $user->save();
+
+      UserPending::where('token', '=', $token)->delete();
+
+      header("Location: /account-activated");
+      exit();
+    }else{
+      header("Location: /page-not-found");
+      exit();
+    }
   }
 
 }

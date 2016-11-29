@@ -1,17 +1,23 @@
 <?php
+$controller = null;
+$method = null;
+
 include(__DIR__ . "/../bootstrap/start.php");
 include(__DIR__ . "/../bootstrap/db.php");
 include(__DIR__ . "/../routes.php");
 
 $match = $router->match();
 
-// make 2 variables to store the information in an array
-// explode the string at @
-list($controller, $method) = explode("@", $match['target']);
+if(is_string($match['target']))
+  // make 2 variables to store the information in an array
+  // explode the string at @
+  list($controller, $method) = explode("@", $match['target']);
 
-if(is_callable(array($controller, $method))){
+if(($controller != null) && (is_callable(array($controller, $method)))){
   $object = new $controller();
   call_user_func_array(array($object, $method), array($match['params']));
+}else if($match && is_callable($match['target'])){
+  call_user_func_array($match['target'], $match['params']);
 }else{
   echo "Cannot find $controller -> $method";
   exit();
